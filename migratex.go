@@ -75,7 +75,7 @@ func init() {
 }
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Minute)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Hour)
 	defer cancel()
 
 	logDebug(fmt.Sprintf("Starting in env: %v", map[string][]string{"os.Environ()": os.Environ()}))
