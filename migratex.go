@@ -504,7 +504,7 @@ type Closable interface {
 }
 
 func cleanUpAndExitOnInterrupt(closables []Closable) {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 0)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
