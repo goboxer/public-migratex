@@ -86,9 +86,9 @@ func main() {
 	}
 	logDebug(fmt.Sprintf("Checked args"))
 
-	databseConnection := fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectId, spannerInstanceId, spannerDatabaseId)
+	databaseConnection := fmt.Sprintf("projects/%s/instances/%s/databases/%s", gcpProjectId, spannerInstanceId, spannerDatabaseId)
 
-	logDebug(fmt.Sprintf("Using envId=%q, gcpProjectId=%q, spannerInstanceId=%q, spannerDatabaseId=%q, databseConnection=%q, timeout=%d", envId, gcpProjectId, spannerInstanceId, spannerDatabaseId, databseConnection, timeout))
+	logDebug(fmt.Sprintf("Using envId=%q, gcpProjectId=%q, spannerInstanceId=%q, spannerDatabaseId=%q, databaseConnection=%q, timeout=%d", envId, gcpProjectId, spannerInstanceId, spannerDatabaseId, databaseConnection, timeout))
 
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -113,20 +113,20 @@ func main() {
 
 	logInfo("DDL and DML migrations found, will determine if any are outstanding...")
 
-	spannerClient, spannerAdminClient := newSpannerClient(ctx, databseConnection)
+	spannerClient, spannerAdminClient := newSpannerClient(ctx, databaseConnection)
 	defer spannerClient.Close()
 	defer spannerAdminClient.Close()
 	cleanUpAndExitOnInterrupt([]Closable{spannerClient})
 
 	logInfo(fmt.Sprintf("Determining last DDL migration..."))
-	createMigrationTableIfNecessary(ctx, spannerAdminClient, databseConnection, "SchemaMigrations")
+	createMigrationTableIfNecessary(ctx, spannerAdminClient, databaseConnection, "SchemaMigrations")
 	dirty, lastDdlMigration := determineLastMigration(ctx, spannerClient, "SchemaMigrations")
 	if dirty {
 		logFatal(fmt.Sprintf("SchemaMigrations table is dirty, this must be manually fixed before more migrations can be applied"))
 	}
 
 	logInfo(fmt.Sprintf("Determining last DML migration..."))
-	createMigrationTableIfNecessary(ctx, spannerAdminClient, databseConnection, "DataMigrations")
+	createMigrationTableIfNecessary(ctx, spannerAdminClient, databaseConnection, "DataMigrations")
 	dirty, lastDmlMigration := determineLastMigration(ctx, spannerClient, "DataMigrations")
 	if dirty {
 		logFatal(fmt.Sprintf("DataMigrations table is dirty, this must be manually fixed before more migrations can be applied"))
@@ -287,11 +287,11 @@ func outstandingMigrations(availableDdlMigrations, availableDmlMigrations []stri
 	return
 }
 
-func createMigrationTableIfNecessary(ctx context.Context, spannerAdminClient *database.DatabaseAdminClient, databseConnection, migrationTableName string) {
+func createMigrationTableIfNecessary(ctx context.Context, spannerAdminClient *database.DatabaseAdminClient, databaseConnection, migrationTableName string) {
 	logInfo(fmt.Sprintf("Creating table %q if necessary...", migrationTableName))
 
 	op, err := spannerAdminClient.UpdateDatabaseDdl(ctx, &adminpb.UpdateDatabaseDdlRequest{
-		Database: databseConnection,
+		Database: databaseConnection,
 		Statements: []string{
 			fmt.Sprintf("CREATE TABLE %s (Version INT64 NOT NULL, Dirty BOOL NOT NULL) PRIMARY KEY (Version)", migrationTableName),
 		},
@@ -449,7 +449,7 @@ func setDataMigrationsDirty(ctx context.Context, spannerClient *spanner.Client, 
 }
 
 // SPANNER >--------------------------------------------------
-func newSpannerClient(ctx context.Context, databseConnection string) (*spanner.Client, *database.DatabaseAdminClient) {
+func newSpannerClient(ctx context.Context, databaseConnection string) (*spanner.Client, *database.DatabaseAdminClient) {
 	logDebug(fmt.Sprintf("Initializing spanner data and admin clients"))
 
 	circleciProjectRepoName := os.Getenv("CIRCLE_PROJECT_REPONAME")
@@ -480,10 +480,10 @@ func newSpannerClient(ctx context.Context, databseConnection string) (*spanner.C
 		},
 	}
 
-	logDebug(fmt.Sprintf("Creating spanner client using connection string %q, minOpenedSessions '%d', sessionId %q, sessionLocation %q", databseConnection, minOpenedSessions, sessionId, sessionLocation))
-	spannerClient, err := spanner.NewClientWithConfig(ctx, databseConnection, spannerClientConfig)
+	logDebug(fmt.Sprintf("Creating spanner client using connection string %q, minOpenedSessions '%d', sessionId %q, sessionLocation %q", databaseConnection, minOpenedSessions, sessionId, sessionLocation))
+	spannerClient, err := spanner.NewClientWithConfig(ctx, databaseConnection, spannerClientConfig)
 	if err != nil {
-		logFatal(fmt.Sprintf("Failed initializing spanner data client for connection %q: %v", databseConnection, err))
+		logFatal(fmt.Sprintf("Failed initializing spanner data client for connection %q: %v", databaseConnection, err))
 	}
 
 	spannerAdminClient, err := database.NewDatabaseAdminClient(ctx)
