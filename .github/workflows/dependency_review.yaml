@@ -3,6 +3,8 @@ name: 'Dependency Review'
 on: [pull_request]
 permissions:
   contents: read
+env:
+  PR_NUMBER: ${{ github.event.number }}
 jobs:
   dependency-review:
     name: Security
@@ -25,12 +27,16 @@ jobs:
         uses: actions/checkout@v3
       - name: Dependency Versions Review
         run: |
+          echo "::notice ::Using ${PR_NUMBER}"
+
           # error off since we use 'git diff' to determine changes
           set +o errexit
           echo "::group::Downloading dependencies"
           go get -u all; go mod tidy
           echo "::endgroup::"
           set -o errexit
+
+          cat ${GITHUB_EVENT_PATH}
 
           TMP_GIT_STATUS_GO_MOD=$(git diff go.mod)
           echo "::notice ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
