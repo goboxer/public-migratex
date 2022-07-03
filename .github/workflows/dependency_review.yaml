@@ -31,7 +31,9 @@ jobs:
           echo "TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
+            echo "::group::My title"
             echo '::warning title=Foo::Dependencies are NOT outdated'
+            echo "::endgroup::"
 
             else
               echo '::warning title=Bar::Dependencies are outdated'
