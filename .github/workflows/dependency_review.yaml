@@ -34,6 +34,5 @@ jobs:
             echo "Dependencies are NOT outdated"
 
             else
-              echo "Dependencies are outdated"
-              exit 1
+              echo "::warning Dependencies are outdated"
           fi
