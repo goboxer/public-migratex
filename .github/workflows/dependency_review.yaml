@@ -4,7 +4,7 @@ on: [pull_request]
 permissions:
   contents: read
 env:
-  PR_NUMBER: ${{ github.event.number }}
+  BX_PR_NUMBER: ${{ github.event.number }}
 jobs:
   dependency-review:
     name: Security
@@ -27,7 +27,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Dependency Versions Review
         run: |
-          echo "::notice ::Using ${PR_NUMBER}"
+          # Useful debugging info
+          #cat ${GITHUB_EVENT_PATH}
+
+          echo "::debug ::BX_PR_NUMBER=${BX_PR_NUMBER}"
 
           # error off since we use 'git diff' to determine changes
           set +o errexit
@@ -36,14 +39,14 @@ jobs:
           echo "::endgroup::"
           set -o errexit
 
-          cat ${GITHUB_EVENT_PATH}
-
           TMP_GIT_STATUS_GO_MOD=$(git diff go.mod)
-          echo "::notice ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
+          echo "::debug ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo '::warning ::Dependencies are NOT outdated'
+            curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X "POST" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"title":"new title","body":"WARNING - Dependencies are outdated"}'
 
             else
               echo '::warning ::Dependencies are outdated'
+              curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X "POST" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"title":"new title","body":"WARNING - Dependencies are outdated"}'
           fi
