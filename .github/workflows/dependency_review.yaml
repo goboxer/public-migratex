@@ -10,17 +10,18 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Dependency Review
+      - name: Dependency Security Review
         uses: actions/dependency-review-action@v2
         with:
           fail-on-severity: low
           allow-licenses: MIT
   dependency-updates:
-    needs: dependency-review
-    name: Updates
+    name: Versions
     runs-on: ubuntu-latest
     steps:
-    - name: Checking
-      run: |
-        echo "Checking..."
-        ls -al
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Dependency Versions Review
+        run: |
+          echo "Checking..."
+          ls -al
