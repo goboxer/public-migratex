@@ -2,6 +2,7 @@
 name: 'Dependency Review'
 on: [pull_request]
 permissions:
+  checks: write
   contents: read
 env:
   BX_PR_NUMBER: ${{ github.event.number }}
@@ -44,9 +45,11 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo '::warning ::Dependencies are NOT outdated'
-            curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X "POST" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"title":"new title","body":"WARNING - Dependencies are outdated"}'
+            curl -X "PATCH" -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"body":"WARNING - Dependencies are outdated"}'
+            curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d '{"name":"Dependencies are outdated", "head_sha":"${GITHUB_SHA}","conclusion":"action_required"}'
 
             else
               echo '::warning ::Dependencies are outdated'
-              curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X "POST" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"title":"new title","body":"WARNING - Dependencies are outdated"}'
+              curl -X "PATCH" -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -X "PATCH" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"body":"WARNING - Dependencies are outdated"}'
+              curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d '{"name":"Dependencies are outdated", "head_sha":"${GITHUB_SHA}","conclusion":"action_required"}'
           fi
