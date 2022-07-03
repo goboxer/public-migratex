@@ -19,6 +19,8 @@ jobs:
     name: Versions
     runs-on: ubuntu-latest
     steps:
+      - name: Environment
+        run: env
       - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Dependency Versions Review
