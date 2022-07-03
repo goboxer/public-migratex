@@ -29,6 +29,7 @@ jobs:
           go get -u all; go mod tidy
           echo "::endgroup::"
           set -o errexit
+
           TMP_GIT_STATUS_GO_MOD=$(git diff go.mod)
           echo "::notice ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
 
