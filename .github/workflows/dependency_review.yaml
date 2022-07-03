@@ -5,12 +5,22 @@ permissions:
   contents: read
 jobs:
   dependency-review:
+    name: Security
     runs-on: ubuntu-latest
     steps:
-      - name: 'Checkout Repository'
+      - name: Checkout Repository
         uses: actions/checkout@v3
       - name: Dependency Review
         uses: actions/dependency-review-action@v2
         with:
           fail-on-severity: low
           allow-licenses: MIT
+  dependency-updates:
+    needs: dependency-review
+    name: Updates
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking
+      run: |
+        echo "Checking..."
+        ls -al
