@@ -25,3 +25,18 @@ jobs:
         run: |
           echo "Checking..."
           ls -al
+
+          # error off since we use 'git diff' to determine changes
+          set +o errexit
+          go get -u all; go mod tidy
+          set -o errexit
+          TMP_GIT_STATUS_GO_MOD=$(git diff go.mod)
+          echo "TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
+
+          if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
+            echo "Dependencies are NOT outdated"
+
+            else
+              echo "Dependencies are outdated"
+              exit 1
+          fi
