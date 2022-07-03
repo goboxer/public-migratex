@@ -35,7 +35,7 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "Dependencies are NOT outdated"
-            exit 1
+
             else
               echo "Dependencies are outdated"
               exit 1
