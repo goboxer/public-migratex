@@ -1,0 +1,118 @@
+# See
+# - https://github.com/actions/dependency-review-action
+# - https://octokit.github.io/rest.js/v18#pulls-create-review
+name: 'Dependency Review'
+on: [pull_request]
+permissions:
+  checks: write
+  contents: write
+  issues: write
+  pull-requests: write
+env:
+  BX_PR_NUMBER: ${{ github.event.number }}
+jobs:
+  dependency-review:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Dependency Security Review
+        uses: actions/dependency-review-action@v2
+        with:
+          fail-on-severity: low
+          allow-licenses: MIT
+  dependency-updates:
+    name: Versions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Environment
+        run: env
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Dependency Versions Review
+        id: dependency_versions_review
+        run: |
+          echo "::notice ::BX_PR_NUMBER=${BX_PR_NUMBER}"
+
+          # error off since we use 'git diff' to determine changes
+          set +o errexit
+          echo "::group::Downloading dependencies"
+          go get -u all; go mod tidy
+          echo "::endgroup::"
+          set -o errexit
+
+          TMP_GIT_STATUS_GO_MOD=$(git diff go.mod)
+          echo "::debug ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
+
+          if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
+            echo "::notice ::Dependencies are NOT outdated"
+            echo "::set-output name=dependencies_outdated::false"
+
+            else
+              echo "::warning ::Dependencies are outdated"
+              echo "::set-output name=dependencies_outdated::true"
+          fi
+        shell: bash
+      - name: Request PR Changes
+        if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'true' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
+
+            console.log("Checking labels API for existing review")
+            const resGetLabel = await github.rest.issues.getLabel({
+              name: outdatedMsg,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
+            console.log("Received labels API response", resGetLabel)
+
+            const found = resGetLabel && resGetLabel.data && resGetLabel.data.id
+            console.log("Existing review from labels API?", found)
+
+            if (!found) {
+              console.log("Checking list reviews API for existing review")
+              const resListReviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                per_page: 100,
+                pull_number: context.issue.number,
+                repo: context.repo.repo
+              })
+              console.log("Received list reviews API response", resListReviews)
+
+              if (resListReviews && resListReviews.data) {
+                console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
+                for (const d of resListReviews.data) {
+                  if (d.body && d.body === outdatedMsg) {
+                    found = true
+                    break
+                  }
+                }
+              }
+              console.log("Existing review from list reviews API?", found)
+            }
+
+            if (found) {
+              console.log("Existing 'DEPENDENCIES OUTDATED' label/review FOUND, will not add review")
+            }
+            else {
+              console.log("Existing 'DEPENDENCIES OUTDATED' label/review NOT FOUND, will add review")
+
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                labels: [outdatedMsg],
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              })
+
+              github.rest.pulls.createReview({
+                body: outdatedMsg,
+                event: "REQUEST_CHANGES",
+                owner: context.repo.owner,
+                pull_number: context.issue.number,
+                repo: context.repo.repo
+              })
+            }
