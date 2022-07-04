@@ -46,7 +46,7 @@ jobs:
           echo "::debug ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
-            echo "::warning ::Dependencies are NOT outdated"
+            echo "::notice ::Dependencies are NOT outdated"
             echo "::set-output name=dependencies_outdated::true"
 
             else
@@ -60,40 +60,57 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const res = await github.rest.pulls.listReviews({
+            const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
+
+            const resGetLabel = await github.rest.issues.getLabel({
+              name: outdatedMsg,
               owner: context.repo.owner,
-              per_page: 100,
-              pull_number: context.issue.number,
               repo: context.repo.repo
             })
-            console.log("Received response", res)
+            console.log("Received getLabel response", resGetLabel)
+
+            let foundLabel = false
+            if (resGetLabel && resGetLabel.data && resGetLabel.data.id) {
+              foundLabel = true
+            }
 
             let foundReview = false
-            if (res && res.data) {
-              console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made", res.data)
-              for (const d of res.data) {
-                if (d.body && d.body === "🔴 DEPENDENCIES OUTDATED 🔴") {
-                  foundComment = true
-                  break
+            if (!foundLabel) {
+              const resListReviews = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                per_page: 100,
+                pull_number: context.issue.number,
+                repo: context.repo.repo
+              })
+              console.log("Received listReviews response", resListReviews)
+
+              if (resListReviews && resListReviews.data) {
+                console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made", resListReviews.data)
+                for (const d of resListReviews.data) {
+                  if (d.body && d.body === outdatedMsg) {
+                    foundReview = true
+                    break
+                  }
                 }
               }
             }
 
-            if (foundComment) {
-              console.log("Found existing 'DEPENDENCIES OUTDATED' review, will not add review", res.data)
+
+            if (foundLabel || foundReview) {
+              console.log("Existing 'DEPENDENCIES OUTDATED' label or review FOUND, will not add review")
             }
             else {
-              console.log("Existing 'DEPENDENCIES OUTDATED' review not found, will add review")
+              console.log("Existing 'DEPENDENCIES OUTDATED' label or review NOT FOUND, will add review")
 
               github.rest.issues.addLabels({
                 issue_number: context.issue.number,
-                labels: ["🔴 DEPENDENCIES OUTDATED 🔴"],
+                labels: [outdatedMsg],
                 owner: context.repo.owner,
                 repo: context.repo.repo
               })
 
               github.rest.pulls.createReview({
-                body: "🔴 DEPENDENCIES OUTDATED 🔴",
+                body: outdatedMsg,
                 event: "REQUEST_CHANGES",
                 owner: context.repo.owner,
                 pull_number: context.issue.number,
