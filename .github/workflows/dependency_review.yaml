@@ -73,19 +73,20 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: '🔴 DEPENDENCIES OUTDATED 🔴'
+              body: "🔴 DEPENDENCIES OUTDATED 🔴"
             })
 
             github.rest.issues.addLabels({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['DEPENDENCIES OUTDATED']
+              labels: ["🔴 DEPENDENCIES OUTDATED 🔴"]
             })
 
             github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number,
-              comments: [{"path":"go.mod","position":1,"body":"Dependencies are outdated."}]
+              pull_number: process.env.BX_PR_NUMBER,
+              event: "COMMENT",
+              comments: [{"path":"go.mod","position":1,"body":"🔴 DEPENDENCIES OUTDATED 🔴"}]
             })
