@@ -4,8 +4,6 @@
 name: 'Dependency Review'
 on: [pull_request]
 permissions:
-  checks: write
-  contents: write
   issues: write
   pull-requests: write
 env:
@@ -86,11 +84,10 @@ jobs:
 
             if (found) {
               console.log("Existing 'DEPENDENCIES OUTDATED' review FOUND, will not add review")
-            }
-            else {
+            } else {
               console.log("Existing 'DEPENDENCIES OUTDATED' review NOT FOUND, will add review")
 
-              github.rest.issues.addLabels({
+              await github.rest.issues.addLabels({
                 issue_number: context.issue.number,
                 labels: [outdatedMsg],
                 owner: context.repo.owner,
@@ -104,4 +101,32 @@ jobs:
                 pull_number: context.issue.number,
                 repo: context.repo.repo
               })
+            }
+      - name: Remove Dependencies Outdated Label
+        if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'false' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
+
+            try {
+              const res = await github.rest.issues.getLabel({
+                name: "outdatedMsg",
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              })
+              console.log("Received response from get labels API", res)
+
+              if (res && res.data && res.data.name) {
+                console.log("Found label, deleting...")
+                github.rest.issues.deleteLabel({
+                  name: outdatedMsg,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                })
+              }
+
+            } catch (e) {
+              console.log("Received error response from get labels API, assuming label does not exist", e)
             }
