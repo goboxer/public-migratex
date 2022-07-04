@@ -25,7 +25,7 @@ jobs:
       - name: Environment
         run: env
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
       - name: Dependency Versions Review
         run: |
           echo "::notice ::BX_PR_NUMBER=${BX_PR_NUMBER}"
