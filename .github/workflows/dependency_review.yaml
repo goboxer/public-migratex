@@ -112,7 +112,7 @@ jobs:
 
             try {
               const res = await github.rest.issues.getLabel({
-                name: "outdatedMsg",
+                name: outdatedMsg,
                 owner: context.repo.owner,
                 repo: context.repo.repo
               })
