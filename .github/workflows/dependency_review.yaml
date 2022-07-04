@@ -88,7 +88,7 @@ jobs:
               if (resListReviews && resListReviews.data) {
                 console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made", resListReviews.data)
                 for (const d of resListReviews.data) {
-                  if (d.body && d.body === outdatedMsg) {
+                  if (d.name && d.name === outdatedMsg) {
                     foundReview = true
                     break
                   }
@@ -98,10 +98,10 @@ jobs:
             console.log("foundReview", foundReview)
 
             if (foundLabel || foundReview) {
-              console.log("Existing 'DEPENDENCIES OUTDATED' label or review FOUND, will not add review")
+              console.log("Existing 'DEPENDENCIES OUTDATED' label/review FOUND, will not add review")
             }
             else {
-              console.log("Existing 'DEPENDENCIES OUTDATED' label or review NOT FOUND, will add review")
+              console.log("Existing 'DEPENDENCIES OUTDATED' label/review NOT FOUND, will add review")
 
               github.rest.issues.addLabels({
                 issue_number: context.issue.number,
