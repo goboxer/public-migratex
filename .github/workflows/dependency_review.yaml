@@ -63,7 +63,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const label = await octokit.rest.issues.getLabel({
+            const label = await github.rest.issues.getLabel({
               name: "🔴 DEPENDENCIES OUTDATED 🔴",
               owner: context.repo.owner,
               repo: context.repo.repo
