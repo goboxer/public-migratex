@@ -47,14 +47,11 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "::warning ::Dependencies are NOT outdated"
-
             echo "::set-output name=dependencies_outdated::true"
 
             else
               echo "::warning ::Dependencies are outdated"
-
-              # TODO - Set this to false
-              echo "::set-output name=dependencies_outdated::true"
+              echo "::set-output name=dependencies_outdated::false"
           fi
         shell: bash
       - name: Request PR Changes
