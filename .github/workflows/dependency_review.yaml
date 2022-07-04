@@ -47,7 +47,7 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "::warning ::Dependencies are NOT outdated"
-            echo "::set-output name=dependencies_outdated::true"
+            echo "::set-output name=dependencies_outdated::false"
 
             else
               echo "::warning ::Dependencies are outdated"
@@ -60,13 +60,6 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            /*const res = await github.rest.issues.getLabel({
-              name: "🔴 DEPENDENCIES OUTDATED 🔴",
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            })
-            console.log("Received response", res)*/
-
             const res = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
