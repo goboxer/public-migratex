@@ -59,7 +59,7 @@ jobs:
         if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'true' }}
         uses: actions/github-script@v6
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             //console.log("GITHUB_API_URL=", process.env.GITHUB_API_URL)
             // github.rest.issues.createComment({
