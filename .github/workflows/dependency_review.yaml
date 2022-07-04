@@ -64,6 +64,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
+            echo "::debug ::Foo bar"
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
