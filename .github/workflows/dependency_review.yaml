@@ -105,3 +105,17 @@ jobs:
                 repo: context.repo.repo
               })
             }
+      - name: Remove PR Change Request
+        if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'false' }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
+
+            github.rest.issues.deleteLabels({
+              issue_number: context.issue.number,
+              labels: [outdatedMsg],
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
