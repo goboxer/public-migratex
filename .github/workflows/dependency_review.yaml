@@ -47,7 +47,7 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "::warning ::Dependencies are NOT outdated"
-            echo "::set-output name=dependencies_outdated::false"
+            echo "::set-output name=dependencies_outdated::true"
 
             else
               echo "::warning ::Dependencies are outdated"
@@ -60,18 +60,36 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const res = await github.rest.issues.getLabel({
+            /*const res = await github.rest.issues.getLabel({
               name: "🔴 DEPENDENCIES OUTDATED 🔴",
               owner: context.repo.owner,
               repo: context.repo.repo
-            });
+            })
+            console.log("Received response", res)*/
+
+            const res = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
             console.log("Received response", res)
 
-            if (res && res.data && res.data.id) {
-              console.log("Found existing 'DEPENDENCIES OUTDATED' label, will not add review", res.data)
+            let foundComment = false
+            if (res && res.data) {
+              console.log("Found existing comments, will check to see if 'DEPENDENCIES OUTDATED' has already been made", res.data)
+              for (const d of res.data) {
+                if (d.body && d.body === "🔴 DEPENDENCIES OUTDATED 🔴") {
+                  foundComment = true
+                  break
+                }
+              }
+            }
 
-            } else {
-              console.log("Existing 'DEPENDENCIES OUTDATED' label not found, will add review")
+            if (foundComment) {
+              console.log("Found existing 'DEPENDENCIES OUTDATED' comment, will not add review", res.data)
+            }
+            else {
+              console.log("Existing 'DEPENDENCIES OUTDATED' comment not found, will add review")
 
               github.rest.issues.addLabels({
                 issue_number: context.issue.number,
