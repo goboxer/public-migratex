@@ -73,6 +73,7 @@ jobs:
             if (resGetLabel && resGetLabel.data && resGetLabel.data.id) {
               foundLabel = true
             }
+            console.log("foundLabel", foundLabel)
 
             let foundReview = false
             if (!foundLabel) {
@@ -94,7 +95,7 @@ jobs:
                 }
               }
             }
-
+            console.log("foundReview", foundReview)
 
             if (foundLabel || foundReview) {
               console.log("Existing 'DEPENDENCIES OUTDATED' label or review FOUND, will not add review")
