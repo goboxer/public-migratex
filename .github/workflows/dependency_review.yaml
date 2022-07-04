@@ -70,23 +70,23 @@ jobs:
           script: |
             //console.log("GITHUB_API_URL=", process.env.GITHUB_API_URL)
             github.rest.issues.createComment({
+              body: "🔴 DEPENDENCIES OUTDATED 🔴",
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: "🔴 DEPENDENCIES OUTDATED 🔴"
             })
 
             github.rest.issues.addLabels({
               issue_number: context.issue.number,
+              labels: ["🔴 DEPENDENCIES OUTDATED 🔴"],
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ["🔴 DEPENDENCIES OUTDATED 🔴"]
+              repo: context.repo.repo
             })
 
             github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: process.env.BX_PR_NUMBER,
+              comments: [{"path":"go.mod","position":1,"body":"🔴 DEPENDENCIES OUTDATED 🔴"}],
               event: "COMMENT",
-              comments: [{"path":"go.mod","position":1,"body":"🔴 DEPENDENCIES OUTDATED 🔴"}]
+              owner: context.repo.owner,
+              pull_number: context.issue.number,
+              repo: context.repo.repo
             })
