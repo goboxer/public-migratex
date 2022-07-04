@@ -47,7 +47,7 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "::notice ::Dependencies are NOT outdated"
-            echo "::set-output name=dependencies_outdated::false"
+            echo "::set-output name=dependencies_outdated::true"
 
             else
               echo "::warning ::Dependencies are outdated"
