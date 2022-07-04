@@ -110,18 +110,23 @@ jobs:
           script: |
             const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
 
-            const res = await github.rest.issues.getLabel({
-              name: "outdatedMsg",
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            })
-            console.log("Received response from get labels API", res)
-
-            if (res && res.data && res.data.name) {
-              console.log("Found label, deleting...")
-              github.rest.issues.deleteLabel({
-                name: outdatedMsg,
+            try {
+              const res = await github.rest.issues.getLabel({
+                name: "outdatedMsg",
                 owner: context.repo.owner,
                 repo: context.repo.repo
               })
+              console.log("Received response from get labels API", res)
+
+              if (res && res.data && res.data.name) {
+                console.log("Found label, deleting...")
+                github.rest.issues.deleteLabel({
+                  name: outdatedMsg,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                })
+              }
+
+            } catch (e) {
+              console.log("Received response from get labels API, assuming label does not exist", res)
             }
