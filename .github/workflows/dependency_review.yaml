@@ -62,9 +62,11 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            await github.rest.issues.createComment({
+            echo "::notice ::BX_PR_NUMBER=${BX_PR_NUMBER}"
+
+            github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: issue_number,
+              issue_number: ${BX_PR_NUMBER},
               body: 'Thank you for the PR!'
-            });
+            })
