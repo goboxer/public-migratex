@@ -62,44 +62,34 @@ jobs:
           script: |
             const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
 
-            console.log("Checking labels API for existing review")
-            const resGetLabel = await github.rest.issues.getLabel({
-              name: outdatedMsg,
+            let found = false
+
+            console.log("Checking list reviews API for existing review")
+            const resListReviews = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
+              per_page: 100,
+              pull_number: context.issue.number,
               repo: context.repo.repo
             })
-            console.log("Received labels API response", resGetLabel)
+            console.log("Received list reviews API response", resListReviews)
 
-            const found = resGetLabel && resGetLabel.data && resGetLabel.data.id ? true : false
-            console.log("Existing review from labels API?", found)
-
-            if (!found) {
-              console.log("Checking list reviews API for existing review")
-              const resListReviews = await github.rest.pulls.listReviews({
-                owner: context.repo.owner,
-                per_page: 100,
-                pull_number: context.issue.number,
-                repo: context.repo.repo
-              })
-              console.log("Received list reviews API response", resListReviews)
-
-              if (resListReviews && resListReviews.data) {
-                console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
-                for (const d of resListReviews.data) {
-                  if (d.body && d.body === outdatedMsg) {
-                    found = true
-                    break
-                  }
+            if (resListReviews && resListReviews.data) {
+              console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
+              for (const d of resListReviews.data) {
+                if (d.body && d.body === outdatedMsg) {
+                  found = true
+                  break
                 }
               }
-              console.log("Existing review from list reviews API?", found)
             }
+            console.log("Existing review from list reviews API?", found)
+
 
             if (found) {
-              console.log("Existing 'DEPENDENCIES OUTDATED' label/review FOUND, will not add review")
+              console.log("Existing 'DEPENDENCIES OUTDATED' review FOUND, will not add review")
             }
             else {
-              console.log("Existing 'DEPENDENCIES OUTDATED' label/review NOT FOUND, will add review")
+              console.log("Existing 'DEPENDENCIES OUTDATED' review NOT FOUND, will add review")
 
               github.rest.issues.addLabels({
                 issue_number: context.issue.number,
