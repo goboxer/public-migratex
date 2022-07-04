@@ -1,4 +1,3 @@
-
 module github.com/goboxer/public-migratex
 
 go 1.16
