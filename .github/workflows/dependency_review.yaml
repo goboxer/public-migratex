@@ -76,7 +76,7 @@ jobs:
             console.log("foundLabel", foundLabel)
 
             let foundReview = false
-            if (!foundLabel) {
+            //if (!foundLabel) {
               const resListReviews = await github.rest.pulls.listReviews({
                 owner: context.repo.owner,
                 per_page: 100,
@@ -94,8 +94,8 @@ jobs:
                   }
                 }
               }
-            }
-            console.log("foundReview", foundReview)
+              console.log("foundReview", foundReview)
+            //}
 
             if (foundLabel || foundReview) {
               console.log("Existing 'DEPENDENCIES OUTDATED' label/review FOUND, will not add review")
