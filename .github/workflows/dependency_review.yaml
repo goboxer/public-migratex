@@ -84,7 +84,6 @@ jobs:
             }
             console.log("Existing review from list reviews API?", found)
 
-
             if (found) {
               console.log("Existing 'DEPENDENCIES OUTDATED' review FOUND, will not add review")
             }
