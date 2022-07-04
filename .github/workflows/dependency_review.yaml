@@ -2,10 +2,10 @@
 name: 'Dependency Review'
 on: [pull_request]
 permissions:
-  checks: read/write
-  contents: read/write
-  issues: read/write
-  pull-requests: read/write
+  checks: read|write
+  contents: read|write
+  issues: read|write
+  pull-requests: read|write
 env:
   BX_PR_NUMBER: ${{ github.event.number }}
 jobs:
