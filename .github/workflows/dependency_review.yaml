@@ -73,12 +73,19 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: '🔴❌ Dependencies are outdated ❌🔴'
+              body: '🔴 DEPENDENCIES OUTDATED 🔴'
             })
 
             github.rest.issues.addLabels({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['Triage']
+              labels: ['DEPENDENCIES OUTDATED']
+            })
+
+            github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              comments: [{"path":"go.mod","position":1,"body":"Dependencies are outdated."}]
             })
