@@ -69,10 +69,7 @@ jobs:
             })
             console.log("Received getLabel response", resGetLabel)
 
-            let foundLabel = false
-            if (resGetLabel && resGetLabel.data && resGetLabel.data.id) {
-              foundLabel = true
-            }
+            const foundLabel = resGetLabel && resGetLabel.data && resGetLabel.data.id
             console.log("foundLabel", foundLabel)
 
             let foundReview = false
