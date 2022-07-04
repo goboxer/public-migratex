@@ -68,7 +68,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             })
-            console.log("Received getLabel response", resGetLabel)
+            console.log("Received labels API response", resGetLabel)
 
             const found = resGetLabel && resGetLabel.data && resGetLabel.data.id
             console.log("Existing review from labels API?", found)
@@ -81,7 +81,7 @@ jobs:
                 pull_number: context.issue.number,
                 repo: context.repo.repo
               })
-              console.log("Received listReviews response", resListReviews)
+              console.log("Received list reviews API response", resListReviews)
 
               if (resListReviews && resListReviews.data) {
                 console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
