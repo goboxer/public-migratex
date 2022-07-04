@@ -47,7 +47,7 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "::notice ::Dependencies are NOT outdated"
-            echo "::set-output name=dependencies_outdated::true"
+            echo "::set-output name=dependencies_outdated::false"
 
             else
               echo "::warning ::Dependencies are outdated"
@@ -67,7 +67,7 @@ jobs:
             console.log("Checking list reviews API for existing review")
             const resListReviews = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
-              per_page: 100,
+              per_page: 100, // Ignoring the edge case of many reviews, just means there are more comments but still only 1 ACK required
               pull_number: context.issue.number,
               repo: context.repo.repo
             })
