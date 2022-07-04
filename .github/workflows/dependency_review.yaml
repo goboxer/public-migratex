@@ -68,10 +68,10 @@ jobs:
             console.log("Received response", res)
 
             if (res && res.data && res.data.id) {
-              console.log("Found existing label, will not add review", res.data)
+              console.log("Found existing 'DEPENDENCIES OUTDATED' label, will not add review", res.data)
 
             } else {
-              console.log("Existing label not found, will add review")
+              console.log("Existing 'DEPENDENCIES OUTDATED' label not found, will add review")
 
               github.rest.issues.addLabels({
                 issue_number: context.issue.number,
