@@ -62,6 +62,7 @@ jobs:
           script: |
             const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
 
+            console.log("Checking labels API for existing review")
             const resGetLabel = await github.rest.issues.getLabel({
               name: outdatedMsg,
               owner: context.repo.owner,
@@ -70,12 +71,10 @@ jobs:
             console.log("Received getLabel response", resGetLabel)
 
             const found = resGetLabel && resGetLabel.data && resGetLabel.data.id
-            console.log("Existing review from label?", found)
+            console.log("Existing review from labels API?", found)
 
-            if (found) {
-              console.log("Skipping list reviews since we already have a label")
-
-            } else {
+            if (!found) {
+              console.log("Checking list reviews API for existing review")
               const resListReviews = await github.rest.pulls.listReviews({
                 owner: context.repo.owner,
                 per_page: 100,
@@ -93,7 +92,7 @@ jobs:
                   }
                 }
               }
-              console.log("Existing review from list of reviews?", found)
+              console.log("Existing review from list reviews API?", found)
             }
 
             if (found) {
