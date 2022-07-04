@@ -65,18 +65,18 @@ jobs:
             let found = false
 
             console.log("Checking list reviews API for existing review")
-            const resListReviews = await github.rest.pulls.listReviews({
+            const res = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               per_page: 100, // Ignoring the edge case of many reviews, just means there are more comments but still only 1 ACK required
               pull_number: context.issue.number,
               repo: context.repo.repo
             })
-            console.log("Received list reviews API response", resListReviews)
+            console.log("Received list reviews API response", res)
 
-            if (resListReviews && resListReviews.data) {
+            if (res && res.data) {
               console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
-              for (const d of resListReviews.data) {
-                if (d.body && d.body === outdatedMsg) {
+              for (const v of res.data) {
+                if (v.body && v.body === outdatedMsg) {
                   found = true
                   break
                 }
