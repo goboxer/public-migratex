@@ -28,9 +28,6 @@ jobs:
         uses: actions/checkout@v3
       - name: Dependency Versions Review
         run: |
-          # Useful debugging info
-          #cat ${GITHUB_EVENT_PATH}
-
           echo "::notice ::BX_PR_NUMBER=${BX_PR_NUMBER}"
 
           # error off since we use 'git diff' to determine changes
@@ -44,16 +41,20 @@ jobs:
           echo "::debug ::TMP_GIT_STATUS_GO_MOD=${TMP_GIT_STATUS_GO_MOD}"
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
-            echo '::warning ::Dependencies are NOT outdated'
+            echo "::warning ::Dependencies are NOT outdated"
+            echo "::group::Adding PR comment"
+            curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER}/comments -d "{\"body\":"WARNING - Dependencies are outdated\", \"commit_id\":\"${GITHUB_SHA}\"}"
+            echo "::endgroup::"
             echo "::group::Updating PR"
-            curl -X PATCH -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"body":"WARNING - Dependencies are outdated"}'
             curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d "{\"name\":\"Dependencies are outdated\", \"head_sha\":\"${GITHUB_SHA}\",\"conclusion\":\"action_required\"}"
             echo "::endgroup::"
 
             else
-              echo '::warning ::Dependencies are outdated'
+              echo "::warning ::Dependencies are outdated"
+              echo "::group::Adding PR comment"
+              curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER}/comments -d "{\"body\":"WARNING - Dependencies are outdated\", \"commit_id\":\"${GITHUB_SHA}\"}"
+              echo "::endgroup::"
               echo "::group::Updating PR"
-              curl -X PATCH -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER} -d '{"body":"WARNING - Dependencies are outdated"}'
               curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d "{\"name\":\"Dependencies are outdated\", \"head_sha\":\"${GITHUB_SHA}\",\"conclusion\":\"action_required\"}"
               echo "::endgroup::"
           fi
