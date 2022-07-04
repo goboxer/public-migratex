@@ -69,11 +69,10 @@ jobs:
             })
             console.log("Received getLabel response", resGetLabel)
 
-            const foundLabel = resGetLabel && resGetLabel.data && resGetLabel.data.id
-            console.log("foundLabel", foundLabel)
+            const found = resGetLabel && resGetLabel.data && resGetLabel.data.id
+            console.log("Existing review from label?", found)
 
-            let foundReview = false
-            if (foundLabel) {
+            if (found) {
               console.log("Skipping list reviews since we already have a label")
 
             } else {
@@ -89,15 +88,15 @@ jobs:
                 console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
                 for (const d of resListReviews.data) {
                   if (d.body && d.body === outdatedMsg) {
-                    foundReview = true
+                    found = true
                     break
                   }
                 }
               }
-              console.log("foundReview", foundReview)
+              console.log("Existing review from list of reviews?", found)
             }
 
-            if (foundLabel || foundReview) {
+            if (found) {
               console.log("Existing 'DEPENDENCIES OUTDATED' label/review FOUND, will not add review")
             }
             else {
