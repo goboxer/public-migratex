@@ -66,7 +66,7 @@ jobs:
               echo "::set-output name=dependencies_outdated::true"
           fi
       - uses: actions/github-script@v6
-        if: ${{ dependency_versions_review.dependencies_outdated == false }}
+        if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == false }}
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
