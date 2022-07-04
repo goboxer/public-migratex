@@ -70,7 +70,7 @@ jobs:
             })
             console.log("Received labels API response", resGetLabel)
 
-            const found = resGetLabel && resGetLabel.data && resGetLabel.data.id
+            const found = resGetLabel && resGetLabel.data && resGetLabel.data.id ? true : false
             console.log("Existing review from labels API?", found)
 
             if (!found) {
