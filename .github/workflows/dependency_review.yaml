@@ -113,7 +113,7 @@ jobs:
           script: |
             const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
 
-            github.rest.issues.deleteLabels({
+            github.rest.issues.deleteLabel({
               issue_number: context.issue.number,
               labels: [outdatedMsg],
               owner: context.repo.owner,
