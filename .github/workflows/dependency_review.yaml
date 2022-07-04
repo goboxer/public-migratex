@@ -85,9 +85,8 @@ jobs:
 
             github.rest.pulls.createReview({
               comments: [{"path":"go.mod","body":"🔴 DEPENDENCIES OUTDATED 🔴"}],
-              event: "COMMENT",
+              event: "REQUEST_CHANGES",
               owner: context.repo.owner,
               pull_number: context.issue.number,
-              repo: context.repo.repo,
-              start_line: 1
+              repo: context.repo.repo
             })
