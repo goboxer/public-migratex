@@ -84,8 +84,7 @@ jobs:
 
             if (found) {
               console.log("Existing 'DEPENDENCIES OUTDATED' review FOUND, will not add review")
-            }
-            else {
+            } else {
               console.log("Existing 'DEPENDENCIES OUTDATED' review NOT FOUND, will add review")
 
               github.rest.issues.addLabels({
@@ -111,8 +110,18 @@ jobs:
           script: |
             const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
 
-            github.rest.issues.deleteLabel({
-              name: outdatedMsg,
+            const res = await github.rest.issues.getLabel({
+              name: "outdatedMsg",
               owner: context.repo.owner,
               repo: context.repo.repo
             })
+            console.log("Received response from get labels API", res)
+
+            if (res && res.data && res.data.name) {
+              console.log("Found label, deleting...")
+              github.rest.issues.deleteLabel({
+                name: outdatedMsg,
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              })
+            }
