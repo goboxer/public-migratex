@@ -76,7 +76,10 @@ jobs:
             console.log("foundLabel", foundLabel)
 
             let foundReview = false
-            //if (!foundLabel) {
+            if (!foundLabel) {
+              console.log("Skipping list reviews since we already have a label")
+
+            } else {
               const resListReviews = await github.rest.pulls.listReviews({
                 owner: context.repo.owner,
                 per_page: 100,
@@ -86,16 +89,16 @@ jobs:
               console.log("Received listReviews response", resListReviews)
 
               if (resListReviews && resListReviews.data) {
-                console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made", resListReviews.data)
+                console.log("Found existing reviews, will check to see if 'DEPENDENCIES OUTDATED' review has already been made")
                 for (const d of resListReviews.data) {
-                  if (d.name && d.name === outdatedMsg) {
+                  if (d.body && d.body === outdatedMsg) {
                     foundReview = true
                     break
                   }
                 }
               }
               console.log("foundReview", foundReview)
-            //}
+            }
 
             if (foundLabel || foundReview) {
               console.log("Existing 'DEPENDENCIES OUTDATED' label/review FOUND, will not add review")
