@@ -105,7 +105,7 @@ jobs:
                 repo: context.repo.repo
               })
             }
-      - name: Remove PR Change Request
+      - name: Remove Dependencies Outdated Label
         if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'false' }}
         uses: actions/github-script@v6
         with:
@@ -114,8 +114,7 @@ jobs:
             const outdatedMsg = "🔴 DEPENDENCIES OUTDATED 🔴"
 
             github.rest.issues.deleteLabel({
-              issue_number: context.issue.number,
-              labels: [outdatedMsg],
+              name: outdatedMsg,
               owner: context.repo.owner,
               repo: context.repo.repo
             })
