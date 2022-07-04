@@ -1,4 +1,6 @@
-# See https://github.com/actions/dependency-review-action
+# See
+# - https://github.com/actions/dependency-review-action
+# - https://octokit.github.io/rest.js/v18#pulls-create-review
 name: 'Dependency Review'
 on: [pull_request]
 permissions:
@@ -55,31 +57,32 @@ jobs:
               echo "::set-output name=dependencies_outdated::true"
           fi
         shell: bash
-      - name: Add Comment to PR
+      - name: Request PR Changes
         if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'true' }}
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            //console.log("GITHUB_API_URL=", process.env.GITHUB_API_URL)
-            // github.rest.issues.createComment({
-            //   body: "🔴 DEPENDENCIES OUTDATED 🔴",
-            //   issue_number: context.issue.number,
-            //   owner: context.repo.owner,
-            //   repo: context.repo.repo,
-            // })
-
-            github.rest.issues.addLabels({
-              issue_number: context.issue.number,
-              labels: ["🔴 DEPENDENCIES OUTDATED 🔴"],
+            const label = await octokit.rest.issues.getLabel({
+              name: "🔴 DEPENDENCIES OUTDATED 🔴",
               owner: context.repo.owner,
               repo: context.repo.repo
-            })
+            });
+            console.log("Read label", label)
 
-            github.rest.pulls.createReview({
-              body: "🔴 DEPENDENCIES OUTDATED 🔴",
-              event: "REQUEST_CHANGES",
-              owner: context.repo.owner,
-              pull_number: context.issue.number,
-              repo: context.repo.repo
-            })
+            if (label && label.id) {
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                labels: ["🔴 DEPENDENCIES OUTDATED 🔴"],
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              })
+
+              github.rest.pulls.createReview({
+                body: "🔴 DEPENDENCIES OUTDATED 🔴",
+                event: "REQUEST_CHANGES",
+                owner: context.repo.owner,
+                pull_number: context.issue.number,
+                repo: context.repo.repo
+              })
+            }
