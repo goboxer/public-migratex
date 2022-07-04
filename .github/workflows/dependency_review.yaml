@@ -88,5 +88,6 @@ jobs:
               event: "COMMENT",
               owner: context.repo.owner,
               pull_number: context.issue.number,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              start_line: 1
             })
