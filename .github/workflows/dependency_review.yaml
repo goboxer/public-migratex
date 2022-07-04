@@ -45,22 +45,18 @@ jobs:
 
           if [ "${TMP_GIT_STATUS_GO_MOD}" == "" ]; then
             echo "::warning ::Dependencies are NOT outdated"
-            echo "::group::Adding PR comment"
-            curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{secrets.GITHUB_TOKEN}}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER}/comments -d "{\"body\":\"WARNING - Dependencies are outdated\", \"commit_id\":\"${GITHUB_SHA}\"}"
-            echo "::endgroup::"
+
             echo "::group::Updating PR"
-            curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{secrets.GITHUB_TOKEN}}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d "{\"actions\":{\"label\":\"Foo\",\"description\":\"Bar\",\"identifier\":\"Baz\"},\"name\":\"Dependencies are outdated\", \"head_sha\":\"${GITHUB_SHA}\",\"conclusion\":\"action_required\"}"
+            curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{secrets.GITHUB_TOKEN}}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d "{\"actions\":[{\"label\":\"Foo\",\"description\":\"Bar\",\"identifier\":\"Baz\"}],\"name\":\"Dependencies are outdated\", \"head_sha\":\"${GITHUB_SHA}\",\"conclusion\":\"action_required\"}"
             echo "::endgroup::"
 
             echo "::set-output name=dependencies_outdated::true"
 
             else
               echo "::warning ::Dependencies are outdated"
-              echo "::group::Adding PR comment"
-              curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{secrets.GITHUB_TOKEN}}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${BX_PR_NUMBER}/comments -d "{\"body\":\"WARNING - Dependencies are outdated\", \"commit_id\":\"${GITHUB_SHA}\"}"
-              echo "::endgroup::"
+
               echo "::group::Updating PR"
-              curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{secrets.GITHUB_TOKEN}}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d "{\"actions\":{\"label\":\"Foo\",\"description\":\"Bar\",\"identifier\":\"Baz\"},\"name\":\"Dependencies are outdated\", \"head_sha\":\"${GITHUB_SHA}\",\"conclusion\":\"action_required\"}"
+              curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token ${{secrets.GITHUB_TOKEN}}" ${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/check-runs -d "{\"actions\":[{\"label\":\"Foo\",\"description\":\"Bar\",\"identifier\":\"Baz\"}],\"name\":\"Dependencies are outdated\", \"head_sha\":\"${GITHUB_SHA}\",\"conclusion\":\"action_required\"}"
               echo "::endgroup::"
 
               echo "::set-output name=dependencies_outdated::true"
@@ -72,7 +68,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            console.log("GITHUB_API_URL=", process.env.GITHUB_API_URL)
+            //console.log("GITHUB_API_URL=", process.env.GITHUB_API_URL)
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
