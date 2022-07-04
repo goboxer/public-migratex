@@ -65,8 +65,10 @@ jobs:
 
               echo "::set-output name=dependencies_outdated::true"
           fi
-      - uses: actions/github-script@v6
-        if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == true }}
+        shell: bash
+      - name: Add Comment to PR - Dependencies are outdated
+        if: ${{ steps.dependency_versions_review.outputs.dependencies_outdated == 'true' }}
+        uses: actions/github-script@v6
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
