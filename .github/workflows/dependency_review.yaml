@@ -63,14 +63,34 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const label = await github.rest.issues.getLabel({
+            const res = await github.rest.issues.getLabel({
               name: "🔴 DEPENDENCIES OUTDATED 🔴",
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            console.log("Read label", label)
+            console.log("Received response", res)
 
-            if (label && label.id) {
+            if (res && res.data && res.data.id) {
+              console.log("Found existing label, will not add review", res.data)
+
+              github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                labels: ["🔴 DEPENDENCIES OUTDATED 🔴"],
+                owner: context.repo.owner,
+                repo: context.repo.repo
+              })
+
+              github.rest.pulls.createReview({
+                body: "🔴 DEPENDENCIES OUTDATED 🔴",
+                event: "REQUEST_CHANGES",
+                owner: context.repo.owner,
+                pull_number: context.issue.number,
+                repo: context.repo.repo
+              })
+
+            } else {
+              console.log("Existing label not found, will add review")
+
               github.rest.issues.addLabels({
                 issue_number: context.issue.number,
                 labels: ["🔴 DEPENDENCIES OUTDATED 🔴"],
